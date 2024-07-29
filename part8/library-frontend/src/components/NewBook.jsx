@@ -19,7 +19,11 @@ const NewBook = (props) => {
   const result = useQuery(AUTHOR_OPTIONS);
 
   const [createBook] = useMutation(CREATE_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }],
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+        return { allBooks: allBooks.concat(response.data.addBook) };
+      });
+    },
   });
 
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
@@ -35,6 +39,7 @@ const NewBook = (props) => {
     label: name,
   }));
 
+  // eslint-disable-next-line react/prop-types
   if (!props.show) {
     return null;
   }
@@ -98,7 +103,7 @@ const NewBook = (props) => {
         <div>genres: {genres.join(" ")}</div>
         <button type="submit">create book</button>
       </form>
-      <br />
+      <h3>edit author birth date</h3>
       <form onSubmit={edit}>
         <Select
           options={names}

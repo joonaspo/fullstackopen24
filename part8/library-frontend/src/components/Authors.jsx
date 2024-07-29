@@ -8,6 +8,7 @@ const Authors = (props) => {
   }
   const authors = result.data.allAuthors;
 
+  // eslint-disable-next-line react/prop-types
   if (!props.show) {
     return null;
   }
