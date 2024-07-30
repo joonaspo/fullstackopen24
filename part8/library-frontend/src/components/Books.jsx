@@ -1,21 +1,21 @@
+/* eslint-disable react/prop-types */
 import { useQuery } from "@apollo/client";
 import { ALL_BOOKS, ALL_GENRES } from "../queries";
 import Select from "react-select";
 import { useState } from "react";
 
-const Books = (props) => {
-  const [genre, setGenre] = useState(null);
-
+const Books = ({ show }) => {
+  const [genreFilter, setGenreFilter] = useState(null);
   const { loading: genresLoading, data: genresData } = useQuery(ALL_GENRES);
 
   const { loading: booksLoading, data: booksData } = useQuery(ALL_BOOKS, {
-    variables: { genre: genre ? genre.value : null },
+    variables: { genre: genreFilter ? genreFilter.value : null },
   });
 
   if (genresLoading || booksLoading) {
     return <>Loading...</>;
   }
-
+  console.log(booksData);
   const genres = genresData.allBooks.map((book) => book.genres);
   const uniqueGenres = [...new Set(genres.flat())];
 
@@ -25,11 +25,11 @@ const Books = (props) => {
   }));
 
   const clearFilter = () => {
-    setGenre(null);
+    setGenreFilter(null);
   };
 
   // eslint-disable-next-line react/prop-types
-  if (!props.show) {
+  if (!show) {
     return null;
   }
   return (
@@ -37,9 +37,9 @@ const Books = (props) => {
       <h2>books</h2>
       Filter by:
       <Select
-        value={genre}
+        value={genreFilter}
         options={genreOptions}
-        onChange={(selectedOption) => setGenre(selectedOption)}
+        onChange={(selectedOption) => setGenreFilter(selectedOption)}
         placeholder="Select a genre"
       ></Select>
       <button onClick={clearFilter}>Remove filter</button>

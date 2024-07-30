@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useMutation, useQuery } from "@apollo/client";
 import { useState } from "react";
 import {
@@ -8,21 +9,24 @@ import {
   EDIT_AUTHOR,
 } from "../queries";
 import Select from "react-select";
+import { updateCache } from "../utils";
 
-const NewBook = (props) => {
+const NewBook = ({ show }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [published, setPublished] = useState("");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
-  const [setBornTo, setBorn] = useState("");
+  const [bornTo, setBornTo] = useState("");
   const result = useQuery(AUTHOR_OPTIONS);
 
   const [createBook] = useMutation(CREATE_BOOK, {
     update: (cache, response) => {
-      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
-        return { allBooks: allBooks.concat(response.data.addBook) };
-      });
+      updateCache(
+        cache,
+        { query: ALL_BOOKS, variables: { genre: null } },
+        response.data.addBook
+      );
     },
   });
 
@@ -40,15 +44,16 @@ const NewBook = (props) => {
   }));
 
   // eslint-disable-next-line react/prop-types
-  if (!props.show) {
+  if (!show) {
     return null;
   }
 
   const submit = async (event) => {
     event.preventDefault();
 
-    console.log("add book...");
-    createBook({ variables: { title, author, published, genres } });
+    createBook({
+      variables: { title, author, published: parseInt(published), genres },
+    });
     setTitle("");
     setPublished("");
     setAuthor("");
@@ -63,7 +68,7 @@ const NewBook = (props) => {
 
   const edit = async (event) => {
     event.preventDefault();
-    editAuthor({ variables: { name: author, setBornTo: Number(setBornTo) } });
+    editAuthor({ variables: { name: author, setBornTo: Number(bornTo) } });
   };
 
   return (
@@ -111,9 +116,8 @@ const NewBook = (props) => {
         />
         <input
           type="number"
-          defaultValue={names[0]}
-          value={setBornTo}
-          onChange={({ target }) => setBorn(target.value)}
+          value={bornTo}
+          onChange={({ target }) => setBornTo(target.value)}
         ></input>
         <button type="submit">Edit</button>
       </form>

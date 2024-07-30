@@ -2,6 +2,7 @@ import { useQuery } from "@apollo/client";
 import { ALL_BOOKS, ME } from "../queries";
 import { useState, useEffect } from "react";
 
+// eslint-disable-next-line react/prop-types
 const Recommendations = ({ show }) => {
   const [favoriteGenre, setFavoriteGenre] = useState(null);
 

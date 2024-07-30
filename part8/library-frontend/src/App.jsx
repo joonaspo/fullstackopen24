@@ -3,12 +3,15 @@ import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import Login from "./components/Login";
-import { useApolloClient } from "@apollo/client";
+import { useApolloClient, useSubscription } from "@apollo/client";
 import Recommendations from "./components/Recommendations";
+import { ALL_BOOKS, BOOK_ADDED } from "./queries";
+import { updateCache } from "./utils";
 
 const App = () => {
   const [page, setPage] = useState("authors");
   const [token, setToken] = useState(null);
+
   const client = useApolloClient();
 
   useEffect(() => {
@@ -17,6 +20,20 @@ const App = () => {
       setToken(loggedUser);
     }
   }, []);
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      console.log(data);
+      const addedBook = data.data.bookAdded;
+      console.log(addedBook);
+      window.alert(`${addedBook.title} added!`);
+      updateCache(
+        client.cache,
+        { query: ALL_BOOKS, variables: { genre: null } },
+        addedBook
+      );
+    },
+  });
 
   const logOut = () => {
     setToken(null);
