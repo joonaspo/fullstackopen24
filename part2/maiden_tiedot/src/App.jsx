@@ -5,40 +5,43 @@ import { RenderCountries } from './components/RenderCountries'
 import { Country } from './components/Country'
 
 function App() {
-
-  const [searchValue, setCountryNameToSearch] = useState('')
+  const [searchValue, setSearchValue] = useState('')
   const [countries, setCountries] = useState([])
   const [filteredCountries, setFilteredCountries] = useState([...countries])
 
   useEffect(() => {
     axios
       .get(`https://studies.cs.helsinki.fi/restcountries/api/all`)
-      .then(response => {
+      .then((response) => {
         setCountries(response.data)
-        setFilteredCountries(response.data)
       })
   }, [])
 
   useEffect(() => {
-    const filteredCountries = countries.filter(country => 
-      country.name.common.toLowerCase().includes(searchValue.toLowerCase()))
-      setFilteredCountries(filteredCountries)
-  }, [searchValue, countries])
-
-  console.log(filteredCountries)
+    const filteredCountries = countries.filter((country) =>
+      country.name.common.toLowerCase().includes(searchValue.toLowerCase())
+    )
+    setFilteredCountries(filteredCountries)
+  }, [countries, searchValue])
 
   return (
     <>
       <SearchForm
         searchValue={searchValue}
-        setCountryNameToSearch={setCountryNameToSearch}        
+        setSearchValue={setSearchValue}
       ></SearchForm>
-      {filteredCountries.length === 1 ? 
-      <Country country={filteredCountries[0]}></Country> 
-      : 
-      <RenderCountries countries={filteredCountries} setCountryNameToSearch={setCountryNameToSearch} setFilteredCountries={setFilteredCountries}></RenderCountries>}
+      {filteredCountries.length === 1 ? (
+        <Country country={filteredCountries[0]}></Country>
+      ) : (
+        <RenderCountries
+          countries={filteredCountries}
+          setSearchValue={setSearchValue}
+          setFilteredCountries={setFilteredCountries}
+        ></RenderCountries>
+      )}
     </>
   )
 }
 
 export default App
+
